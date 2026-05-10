@@ -43,10 +43,12 @@ jobs:
             - name: Fetch default configs
               run: |
                 if [ -z "${{ inputs.cliff_config }}" ] || [ ! -f "${{ inputs.cliff_config }}" ]; then
-                    curl -sL https://raw.githubusercontent.com/mcl-playz/actions/main/.github/cliff.toml -o /tmp/cliff.toml
+                    curl -fsL https://raw.githubusercontent.com/mcl-playz/actions/main/.github/cliff.toml -o /tmp/cliff.toml \
+                    || { echo "Failed to fetch cliff.toml"; exit 1; }
                 fi
                 if [ -z "${{ inputs.cliff_release_config }}" ] || [ ! -f "${{ inputs.cliff_release_config }}" ]; then
-                    curl -sL https://raw.githubusercontent.com/mcl-playz/actions/main/.github/cliff-release.toml -o /tmp/cliff-release.toml
+                    curl -fsL https://raw.githubusercontent.com/mcl-playz/actions/main/.github/cliff-release.toml -o /tmp/cliff-release.toml \
+                    || { echo "Failed to fetch cliff-release.toml"; exit 1; }
                 fi
 
             - name: Bump version and generate changelog
@@ -74,7 +76,7 @@ jobs:
                         git tag ${{ steps.cliff.outputs.version }}
                         git push
                         git push --tags
-                        
+
             - name: Create GitHub release
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
